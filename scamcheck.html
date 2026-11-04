@@ -54,6 +54,8 @@ h1 em{font-style:normal;color:var(--gold)}
 .why div{border-left:3px solid var(--bad);padding-left:12px;font-size:14px}
 .why a{color:var(--ink);font-weight:600}
 .tag{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.keep{display:block;text-align:center;font:600 14px var(--body);text-decoration:none;background:#f2b134;color:#0f1d33;border-radius:8px;padding:10px 12px}
+.keep:focus-visible{outline:2px solid var(--ink)}
 button.reset{justify-self:start;font:600 14px var(--body);border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);padding:8px 12px;cursor:pointer}
 button.reset:focus-visible{outline:2px solid var(--gold)}
 .mbar{display:none}
@@ -91,6 +93,7 @@ footer p{margin:0;max-width:75ch}
         <li>If money is already gone, report it at reportfraud.ftc.gov and ic3.gov (US). Ignore anyone who offers to get it back for a fee.</li>
       </ol>
       <div class="why" id="why"></div>
+      <a class="keep" id="keep" href="https://payhip.com/b/VMlSF" target="_blank" rel="noopener" hidden>Keep this list: free printable 10 Crypto Red Flags</a>
       <button type="button" class="reset" id="reset">Clear all</button>
     </aside>
   </section>
@@ -142,6 +145,7 @@ footer p{margin:0;max-width:75ch}
     v.classList.toggle('hot',n>0);
     document.getElementById('mCount').textContent=n;document.getElementById('mbar').classList.toggle('hot',n>0);
     document.getElementById('doList').hidden=n===0;
+    document.getElementById('keep').hidden=n===0;
     document.getElementById('vTitle').textContent=n===0?'Nothing ticked yet':n===1?'Stop. This is a red flag.':'Stop. '+n+' red flags match.';
     document.getElementById('vText').textContent=n===0?'Tick anything that matches. This check can only spot warning signs. It can never prove that something is safe.':'Real companies do not work this way. Before you do anything else:';
     const why=document.getElementById('why');why.innerHTML='';
