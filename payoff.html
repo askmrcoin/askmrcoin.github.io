@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Free credit card payoff calculator from Mr. Coin: see how long your balance really takes to pay off and what a small extra payment saves.">
+<meta property="og:title" content="Credit Card Payoff Calculator | Mr. Coin">
+<meta property="og:description" content="How long does $1,000 on a credit card really take to pay off? Type your balance, APR and payment.">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Credit Card Payoff Calculator | Mr. Coin</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one bench. Inputs on the left like a control panel, readouts on the right, the balance trace under both. */
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#0f1d33; --muted:#566278; --line:#d9dee8;
+  --gold:#b87a00; --gold-soft:#f6e3b4; --good:#1f7a5a; --bad:#b4472f; --grid:#e6eaf1;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b1526; --panel:#12203a; --ink:#e9eef7; --muted:#9aa7bd; --line:#24365a;
+  --gold:#f2b134; --gold-soft:#3a2f14; --good:#4fc79a; --bad:#ff8a6b; --grid:#1b2c4b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1526; --panel:#12203a; --ink:#e9eef7; --muted:#9aa7bd; --line:#24365a;
+  --gold:#f2b134; --gold-soft:#3a2f14; --good:#4fc79a; --bad:#ff8a6b; --grid:#1b2c4b; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.coin{width:44px;height:44px;border-radius:50%;background:var(--gold);color:#0f1d33;display:grid;place-items:center;
+  font:800 15px/1 var(--display);box-shadow:inset 0 0 0 3px rgba(15,29,51,.25);flex:none}
+.brand{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--ink)}
+h1{font:800 clamp(28px,4.6vw,46px)/1.08 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+.bench{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:20px}
+@media (max-width:760px){.bench{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.controls{display:grid;gap:18px;align-content:start}
+.field{display:grid;gap:6px}
+.field label{font:600 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.field label output{color:var(--ink);font-variant-numeric:tabular-nums}
+.inrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--bg)}
+.inrow span{font:500 15px var(--mono);color:var(--muted)}
+.inrow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 18px/2.4 var(--mono);outline:none;font-variant-numeric:tabular-nums}
+.inrow:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.readouts{display:grid;gap:16px;min-width:0}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.cards{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:10px;background:var(--panel)}
+.card.alt{border-color:var(--good)}
+.tag{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card.alt .tag{color:var(--good)}
+.big{font:600 30px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.rows{display:grid;gap:4px;font-size:14px}
+.rows div{display:flex;justify-content:space-between;gap:10px}
+.rows dd{margin:0;font:500 14px var(--mono);font-variant-numeric:tabular-nums}
+.rows dt{color:var(--muted)}
+.interest{color:var(--bad)}
+.save{border:1px dashed var(--good);border-radius:10px;padding:12px 16px;color:var(--ink);font-size:15px}
+.save strong{color:var(--good);font-family:var(--mono)}
+.warn{border:1px solid var(--bad);border-radius:10px;padding:12px 16px;color:var(--bad);font-weight:500}
+.chart{min-width:0}
+.chart h2{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.split{height:12px;border-radius:6px;overflow:hidden;display:flex;background:var(--grid)}
+.split .p{background:var(--ink)} .split .i{background:var(--bad)}
+footer{display:grid;gap:12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:18px}
+footer p{margin:0;max-width:75ch}
+.links{display:flex;gap:12px;flex-wrap:wrap}
+.links a{font:600 14px var(--body);color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:9px 14px;background:var(--panel)}
+.links a:hover,.links a:focus-visible{border-color:var(--gold);outline:none}
+.links a.primary{background:var(--gold);border-color:var(--gold);color:#0f1d33}
+@media (prefers-reduced-motion:no-preference){.big{transition:color .2s}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="coin" aria-hidden="true">MC</div>
+    <div class="brand"><b>Mr. Coin</b> · money is a system, let's debug it</div>
+  </header>
+
+  <section style="display:grid;gap:10px">
+    <h1>How long does <em>$1,000</em> on a credit card really take to pay off?</h1>
+    <p class="lede">Type your balance, your card's APR and what you pay each month. The calculator runs the bank's math month by month and shows what a small extra payment changes. The example below is the one from our video: $1,000 at 22%, paying $30 a month.</p>
+  </section>
+
+  <section class="bench">
+    <form class="panel controls" id="f" autocomplete="off">
+      <div class="field">
+        <label for="bal">Card balance</label>
+        <div class="inrow"><span>$</span><input id="bal" type="number" inputmode="decimal" min="1" step="1" value="1000"></div>
+      </div>
+      <div class="field">
+        <label for="apr">APR (yearly interest)</label>
+        <div class="inrow"><input id="apr" type="number" inputmode="decimal" min="0" max="60" step="0.1" value="22"><span>%</span></div>
+        <p class="hint">Find it on your statement. Many US cards are above 20%.</p>
+      </div>
+      <div class="field">
+        <label for="pay">What you pay each month</label>
+        <div class="inrow"><span>$</span><input id="pay" type="number" inputmode="decimal" min="1" step="1" value="30"></div>
+      </div>
+      <div class="field">
+        <label for="extra">Pay a little more <output id="extraOut" for="extra">+$20</output></label>
+        <input id="extra" type="range" min="5" max="200" step="5" value="20">
+        <p class="hint">See what an extra few dollars a month does.</p>
+      </div>
+    </form>
+
+    <div class="readouts">
+      <div id="warn" class="warn" hidden></div>
+      <div class="cards">
+        <div class="card">
+          <span class="tag" id="tagA">Paying $30 a month</span>
+          <div class="big" id="timeA">4 yr 4 mo</div>
+          <dl class="rows">
+            <div><dt>Total you pay</dt><dd id="totA">$1,559.61</dd></div>
+            <div><dt>Interest</dt><dd class="interest" id="intA">$559.61</dd></div>
+          </dl>
+          <div class="split" aria-hidden="true"><div class="p" id="spA"></div><div class="i" id="siA"></div></div>
+        </div>
+        <div class="card alt">
+          <span class="tag" id="tagB">Paying $50 a month</span>
+          <div class="big" id="timeB">2 yr 2 mo</div>
+          <dl class="rows">
+            <div><dt>Total you pay</dt><dd id="totB">$1,257.14</dd></div>
+            <div><dt>Interest</dt><dd class="interest" id="intB">$257.14</dd></div>
+          </dl>
+          <div class="split" aria-hidden="true"><div class="p" id="spB"></div><div class="i" id="siB"></div></div>
+        </div>
+      </div>
+      <p class="save" id="save">Paying <strong>$20</strong> more each month saves <strong>$302.47</strong> and gets you debt-free <strong>26 months</strong> sooner.</p>
+      <div class="panel chart">
+        <h2>Balance left, month by month</h2>
+        <svg id="svg" viewBox="0 0 640 260" role="img" aria-label="Chart of the remaining balance for both payment plans"></svg>
+        <div class="legend"><span><i style="background:var(--bad)"></i><span id="lgA">$30 a month</span></span><span><i style="background:var(--good)"></i><span id="lgB">$50 a month</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>How it works: interest is added each month at APR ÷ 12, then your payment comes off. It assumes no new purchases, no late fees and a fixed APR. Your bank's exact numbers can differ a little. Education only, not financial advice.</p>
+    <p>The simple rule from the video: use a credit card like a debit card, and pay the full statement every month. Then interest is zero.</p>
+    <div class="links">
+      <a class="primary" href="https://www.youtube.com/@AskMrCoin" target="_blank" rel="noopener">Watch Mr. Coin on YouTube</a>
+      <a href="https://payhip.com/b/A7EO6" target="_blank" rel="noopener">First Money Kit (guide + checklist)</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const money=v=>'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const whole=v=>'$'+Math.round(v).toLocaleString('en-US');
+  const dur=m=>{const y=Math.floor(m/12),r=m%12;return (y?y+' yr ':'')+(r||!y?r+' mo':'').trim()};
+
+  // Month by month: add interest, then subtract the payment.
+  function run(balance,apr,pay){
+    const r=apr/100/12; let b=balance,total=0,m=0; const trace=[b];
+    if(pay<=b*r+0.005) return {never:true,trace:[b]};
+    while(b>0.005&&m<1200){b+=b*r;const p=Math.min(pay,b);b-=p;total+=p;m++;trace.push(Math.max(b,0));}
+    return {never:false,months:m,total,interest:total-balance,trace};
+  }
+
+  function card(sfx,res,balance){
+    if(res.never){$('time'+sfx).textContent='Never';$('tot'+sfx).textContent='—';$('int'+sfx).textContent='grows';$('sp'+sfx).style.width='0';$('si'+sfx).style.width='100%';return;}
+    $('time'+sfx).textContent=dur(res.months);
+    $('tot'+sfx).textContent=money(res.total);
+    $('int'+sfx).textContent=money(res.interest);
+    const ip=Math.min(100,res.interest/res.total*100);
+    $('sp'+sfx).style.width=(100-ip)+'%'; $('si'+sfx).style.width=ip+'%';
+  }
+
+  function chart(a,b,balance){
+    const svg=$('svg'),W=640,H=260,L=56,R=12,T=12,B=34;
+    const n=Math.max(a.trace.length,b.trace.length,2)-1;
+    const x=i=>L+(W-L-R)*i/n, y=v=>T+(H-T-B)*(1-v/balance);
+    const css=getComputedStyle(document.documentElement);
+    const c=k=>css.getPropertyValue(k).trim();
+    let g='';
+    for(let k=0;k<=4;k++){const v=balance*k/4,yy=y(v);
+      g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${c('--grid')}" stroke-width="1"/>`+
+         `<text x="${L-8}" y="${yy+4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="${c('--muted')}">${whole(v)}</text>`;}
+    const step=n>48?12:n>18?6:3;
+    for(let i=0;i<=n;i+=step){g+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="${c('--muted')}">${i===0?'now':i+' mo'}</text>`;}
+    const path=(t,col,w)=>{if(t.length<2)return '';let d=t.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+      const last=t.length-1;return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round"/>`+
+        `<circle cx="${x(last)}" cy="${y(t[last])}" r="4" fill="${col}"/>`;};
+    g+=path(a.never?[balance,balance]:a.trace,c('--bad'),2.5);
+    g+=path(b.never?[balance,balance]:b.trace,c('--good'),2.5);
+    svg.innerHTML=g;
+  }
+
+  function update(){
+    const balance=Math.max(1,+$('bal').value||0), apr=Math.max(0,+$('apr').value||0), pay=Math.max(1,+$('pay').value||0), extra=+$('extra').value;
+    $('extraOut').textContent='+$'+extra;
+    const a=run(balance,apr,pay), b=run(balance,apr,pay+extra);
+    $('tagA').textContent='Paying '+whole(pay)+' a month'; $('tagB').textContent='Paying '+whole(pay+extra)+' a month';
+    $('lgA').textContent=whole(pay)+' a month'; $('lgB').textContent=whole(pay+extra)+' a month';
+    card('A',a,balance); card('B',b,balance);
+    const w=$('warn');
+    if(a.never){w.hidden=false;w.textContent='At '+whole(pay)+' a month the interest ('+money(balance*apr/100/12)+' a month) eats the whole payment. The balance never goes down.';}
+    else w.hidden=true;
+    const s=$('save');
+    if(!a.never&&!b.never){s.hidden=false;s.innerHTML='Paying <strong>$'+extra+'</strong> more each month saves <strong>'+money(a.interest-b.interest)+'</strong> and gets you debt-free <strong>'+(a.months-b.months)+' months</strong> sooner.';}
+    else s.hidden=true;
+    chart(a,b,balance);
+  }
+  $('f').addEventListener('input',update);
+  $('f').addEventListener('submit',e=>e.preventDefault());
+  try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',update);}catch(e){}
+  new MutationObserver(update).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  update();
+})();
+</script>
+
+</body>
+</html>
