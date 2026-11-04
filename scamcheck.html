@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crypto Scam Check | Mr. Coin</title>
+<meta name="description" content="Free crypto scam check from Mr. Coin: tick what is happening to you and see which red flags match, before you send anything.">
+<meta property="og:title" content="Crypto Scam Check | Mr. Coin">
+<meta property="og:description" content="Someone wrote you about your crypto? Tick what is happening and see the red flags before you send anything.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a checklist on the left like an inspection form, the verdict panel on the right stays in view. */
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#0f1d33; --muted:#566278; --line:#d9dee8;
+  --gold:#b87a00; --gold-soft:#f6e3b4; --good:#1f7a5a; --bad:#b4472f; --bad-soft:#f8e1da;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0b1526; --panel:#12203a; --ink:#e9eef7; --muted:#9aa7bd; --line:#24365a;
+  --gold:#f2b134; --gold-soft:#3a2f14; --good:#4fc79a; --bad:#ff8a6b; --bad-soft:#3a1d18; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+header a{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;flex-wrap:wrap}
+.coin{width:44px;height:44px;border-radius:50%;background:#f2b134;color:#0f1d33;display:grid;place-items:center;font:800 15px/1 var(--display);flex:none}
+.brand{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--ink)}
+h1{font:800 clamp(28px,4.6vw,46px)/1.08 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:20px;align-items:start}
+@media (max-width:820px){.bench{grid-template-columns:1fr}}
+.list{display:grid;gap:10px;margin:0;padding:0;border:0;min-width:0}
+.list legend{font:600 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding:0}
+.item{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;cursor:pointer}
+.item input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--bad)}
+.item:has(input:checked){border-color:var(--bad);background:var(--bad-soft)}
+.item:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+.item b{display:block;font-weight:600}
+.item span{display:block;color:var(--muted);font-size:14px}
+.verdict{position:sticky;top:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:14px}
+.meter{display:flex;align-items:baseline;gap:10px}
+.count{font:600 48px/1 var(--mono);font-variant-numeric:tabular-nums}
+.verdict.hot{border-color:var(--bad)}
+.verdict.hot .count{color:var(--bad)}
+.verdict h2{font:800 22px/1.2 var(--display);margin:0}
+.verdict p{margin:0;font-size:15px}
+.do{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15px}
+.why{display:grid;gap:10px}
+.why div{border-left:3px solid var(--bad);padding-left:12px;font-size:14px}
+.why a{color:var(--ink);font-weight:600}
+.tag{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+button.reset{justify-self:start;font:600 14px var(--body);border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);padding:8px 12px;cursor:pointer}
+button.reset:focus-visible{outline:2px solid var(--gold)}
+.mbar{display:none}
+@media (max-width:820px){.mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);border-top:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));font-size:15px}
+.mbar.hot{border-top:2px solid var(--bad)}.mbar b{font-family:var(--mono)}.mbar.hot b{color:var(--bad)}
+.mbar a{font-weight:600;color:var(--ink)}body{padding-bottom:84px}}
+footer{display:grid;gap:12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:18px}
+footer p{margin:0;max-width:75ch}
+.links{display:flex;gap:12px;flex-wrap:wrap}
+.links a{font:600 14px var(--body);color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:9px 14px;background:var(--panel)}
+.links a:hover,.links a:focus-visible{border-color:var(--gold);outline:none}
+.links a.primary{background:#f2b134;border-color:#f2b134;color:#0f1d33}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="./"><div class="coin" aria-hidden="true">MC</div><div class="brand"><b>Mr. Coin</b> · money is a system, let's debug it</div></a></header>
+
+  <section style="display:grid;gap:10px">
+    <h1>Someone wrote you about your crypto. <em>Is it a scam?</em></h1>
+    <p class="lede">Tick everything that matches what is happening to you right now. Each one is a red flag we have seen in real crypto scams. One red flag is already enough to stop and check.</p>
+  </section>
+
+  <section class="bench">
+    <fieldset class="list" id="list"><legend>What is happening?</legend></fieldset>
+
+    <aside class="verdict" id="verdict" aria-live="polite">
+      <div class="meter"><span class="count" id="count">0</span><span class="tag">red flags</span></div>
+      <h2 id="vTitle">Nothing ticked yet</h2>
+      <p id="vText">Tick anything that matches. This check can only spot warning signs. It can never prove that something is safe.</p>
+      <ol class="do" id="doList" hidden>
+        <li>Do not send any crypto or money.</li>
+        <li>Do not type your recovery phrase anywhere. Nobody real ever needs it.</li>
+        <li>Stop replying. Contact the company yourself, through its official website or app that you open on your own.</li>
+        <li>If money is already gone, report it at reportfraud.ftc.gov and ic3.gov (US). Ignore anyone who offers to get it back for a fee.</li>
+      </ol>
+      <div class="why" id="why"></div>
+      <button type="button" class="reset" id="reset">Clear all</button>
+    </aside>
+  </section>
+
+  <footer>
+    <p>This is a checklist, not a verdict. Scammers change scripts all the time, so no tick does not mean safe. Your recovery phrase never leaves your paper. Education only, not financial advice.</p>
+    <div class="links">
+      <a class="primary" href="https://payhip.com/b/VMlSF" target="_blank" rel="noopener">Free printable: 10 Crypto Red Flags</a>
+      <a href="https://www.youtube.com/@AskMrCoin" target="_blank" rel="noopener">Watch Mr. Coin on YouTube</a>
+      <a href="./">More free tools</a>
+    </div>
+  </footer>
+</div>
+<div class="mbar" id="mbar"><span><b id="mCount">0</b> red flags ticked</span><a href="#verdict">See what to do</a></div>
+<script>
+(function(){
+  const CH='https://www.youtube.com/@AskMrCoin';
+  // v = video id, d = day it goes public (before that we link the channel)
+  const FLAGS=[
+    {t:'They contacted you first',s:'A "support agent", "exchange team" or "wallet team" wrote or called you without you asking.',w:'Real support never starts the conversation. Scammers find you in comments, groups and DMs.',v:'_wlGnQZCp7Y',d:'2026-10-29',n:'5 Crypto Scams and How to Spot Them'},
+    {t:'They asked for your recovery phrase',s:'12 or 24 words, a "seed", a "backup", or a form to "verify" or "sync" your wallet.',w:'Whoever has the phrase owns the wallet. No company, app or person ever needs it.',v:'tFBHV_Fb9WQ',d:'2026-10-16',n:'How Not to Lose Your Crypto: The Most Common Mistakes'},
+    {t:'There is a countdown or a threat',s:'"Your wallet will be frozen", "critical vulnerability, move your funds now", "24 hours left".',w:'Urgency is there to stop you from checking. Real warnings never rush you.',v:'6I2cTopsNh0',d:'2026-10-28',n:'How Not to Lose Your Crypto to a Fake "Urgent" Warning'},
+    {t:'A letter or message with a QR code or link to "verify" your wallet',s:'It looks official: the logo, the colors, maybe even paper mail.',w:'Logos are easy to copy. Open the official app yourself instead of the link.',v:'6I2cTopsNh0',d:'2026-10-28',n:'How Not to Lose Your Crypto to a Fake "Urgent" Warning'},
+    {t:'Guaranteed or doubled profit',s:'"Send 1, get 2 back", a sure-win trading bot, a "VIP signal" group.',w:'Nobody can guarantee crypto profit. A promise like this is the bait.',v:'_wlGnQZCp7Y',d:'2026-10-29',n:'5 Crypto Scams and How to Spot Them'},
+    {t:'A new online friend suggests an investment platform',s:'You met on a dating app, social media or a "wrong number" text, and now they show you their gains.',w:'This is the "pig butchering" pattern: weeks of trust, then a fake platform that will not let you withdraw.',v:'_wlGnQZCp7Y',d:'2026-10-29',n:'5 Crypto Scams and How to Spot Them'},
+    {t:'Someone offers to recover money you already lost, for a fee',s:'A "recovery agent", "blockchain lawyer" or "investigator" contacts you after a loss.',w:'This is the second wave: people who already lost money are targeted again.',v:'GVf4PEWHNOg',d:'2026-11-06',n:'Got Scammed in Crypto? What to Do in the First 24 Hours'},
+    {t:'You were told to pay at a crypto ATM or with gift cards',s:'"Your bank account is under attack, move the money to keep it safe."',w:'No bank, government office or police asks you to pay this way.',v:'oChI17BAsDs',d:'2026-12-04',n:'The Crypto ATM Scam'},
+    {t:'You are sending to an address you copied from your history',s:'Or the address on screen looks right only at the start and the end.',w:'Scammers send tiny amounts from look-alike addresses so the fake one sits in your history.',v:'14S5lZRb11M',d:'2026-11-05',n:'How Not to Lose Your Crypto to a Copy-Paste Address'},
+    {t:'A "free airdrop" or token asks you to connect your wallet and sign',s:'A surprise token in your wallet, or a site that says you won.',w:'One signature can give a "drainer" permission to empty your wallet.',v:'Nu0viq_TUmk',d:'2026-12-10',n:'How Not to Lose Your Crypto to a "Free Airdrop"'},
+    {t:'They want you to install an app, update or browser extension from their link',s:'"Install this update to secure your funds."',w:'Fake wallet apps and extensions exist in real app stores. Install only from the official site.',v:'',d:'',n:''},
+    {t:'Your hardware wallet came opened, used or with the words already filled in',s:'Bought from a marketplace or reseller, or the recovery card was already written.',w:'Tampered devices from resellers have emptied real wallets. Buy only from the official store.',v:'QauzkXc1P7I',d:'2026-10-26',n:'Hacked Before You Open It: The Reseller Hardware Wallet Trap'}
+  ];
+  const today=new Date().toISOString().slice(0,10);
+  const list=document.getElementById('list');
+  FLAGS.forEach((f,i)=>{
+    const l=document.createElement('label');l.className='item';l.htmlFor='flag'+i;
+    l.innerHTML=`<input type="checkbox" id="flag${i}" data-i="${i}"><span><b></b><span></span></span>`;
+    l.querySelector('b').textContent=f.t;l.querySelector('span span').textContent=f.s;
+    list.appendChild(l);
+  });
+  function link(f){
+    if(f.v&&f.d&&today>=f.d)return {href:'https://youtu.be/'+f.v,text:'Watch: '+f.n};
+    return {href:CH,text:'More on the Mr. Coin channel'};
+  }
+  function update(){
+    const on=[...list.querySelectorAll('input:checked')].map(x=>FLAGS[+x.dataset.i]);
+    const n=on.length,v=document.getElementById('verdict');
+    document.getElementById('count').textContent=n;
+    v.classList.toggle('hot',n>0);
+    document.getElementById('mCount').textContent=n;document.getElementById('mbar').classList.toggle('hot',n>0);
+    document.getElementById('doList').hidden=n===0;
+    document.getElementById('vTitle').textContent=n===0?'Nothing ticked yet':n===1?'Stop. This is a red flag.':'Stop. '+n+' red flags match.';
+    document.getElementById('vText').textContent=n===0?'Tick anything that matches. This check can only spot warning signs. It can never prove that something is safe.':'Real companies do not work this way. Before you do anything else:';
+    const why=document.getElementById('why');why.innerHTML='';
+    on.forEach(f=>{const d=document.createElement('div');const p=document.createElement('p');p.textContent=f.w;d.appendChild(p);
+      const k=link(f);const a=document.createElement('a');a.href=k.href;a.target='_blank';a.rel='noopener';a.textContent=k.text;d.appendChild(a);why.appendChild(d);});
+  }
+  list.addEventListener('change',update);
+  document.getElementById('reset').addEventListener('click',()=>{list.querySelectorAll('input').forEach(x=>x.checked=false);update();});
+  update();
+})();
+</script>
+</body>
+</html>
