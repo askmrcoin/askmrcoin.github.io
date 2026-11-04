@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Free credit card payoff calculator from Mr. Coin: see how long your balance really takes to pay off and what a small extra payment saves.">
+<meta name="description" content="Free credit card payoff calculator from Mr. Coin: see how long your balance really takes to pay off, on a fixed payment or only the minimum, and what a small extra payment saves.">
 <meta property="og:title" content="Credit Card Payoff Calculator | Mr. Coin">
-<meta property="og:description" content="How long does $1,000 on a credit card really take to pay off? Type your balance, APR and payment.">
+<meta property="og:description" content="How long does your credit card balance really take to pay off? Type your balance, APR and payment.">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Credit Card Payoff Calculator | Mr. Coin</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -50,6 +50,14 @@ h1 em{font-style:normal;color:var(--gold)}
 .inrow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 18px/2.4 var(--mono);outline:none;font-variant-numeric:tabular-nums}
 .inrow:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
 input[type=range]{width:100%;accent-color:var(--gold)}
+fieldset.seg-wrap{border:0;padding:0;margin:0;min-width:0}
+fieldset.seg-wrap legend{font:600 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:0;margin-bottom:6px}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{padding:9px 10px;text-align:center;font:500 13px/1.3 var(--body);color:var(--muted);cursor:pointer}
+.seg input:checked+label{background:var(--gold);color:#0f1d33;font-weight:600}
+.seg input:focus-visible+label{outline:2px solid var(--gold);outline-offset:-2px}
+#minBox{display:grid;gap:6px}
 .hint{font-size:13px;color:var(--muted);margin:0}
 .readouts{display:grid;gap:16px;min-width:0}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -93,8 +101,8 @@ footer p{margin:0;max-width:75ch}
   </header>
 
   <section style="display:grid;gap:10px">
-    <h1>How long does <em>$1,000</em> on a credit card really take to pay off?</h1>
-    <p class="lede">Type your balance, your card's APR and what you pay each month. The calculator runs the bank's math month by month and shows what a small extra payment changes. The example below is the one from our video: $1,000 at 22%, paying $30 a month.</p>
+    <h1>How long does <em id="hBal">$1,000</em> on a credit card really take to pay off?</h1>
+    <p class="lede">Type your balance, your card's APR and what you pay each month. The calculator runs the bank's math month by month and shows what a small extra payment changes. The numbers filled in below are the example from our video.</p>
   </section>
 
   <section class="bench">
@@ -108,14 +116,28 @@ footer p{margin:0;max-width:75ch}
         <div class="inrow"><input id="apr" type="number" inputmode="decimal" min="0" max="60" step="0.1" value="22"><span>%</span></div>
         <p class="hint">Find it on your statement. Many US cards are above 20%.</p>
       </div>
-      <div class="field">
+      <fieldset class="field seg-wrap">
+        <legend>How you pay now</legend>
+        <div class="seg">
+          <input type="radio" name="mode" id="modeFixed" value="fixed" checked><label for="modeFixed">Same amount every month</label>
+          <input type="radio" name="mode" id="modeMin" value="min"><label for="modeMin">Only the card's minimum</label>
+        </div>
+      </fieldset>
+      <div class="field" id="fixedBox">
         <label for="pay">What you pay each month</label>
         <div class="inrow"><span>$</span><input id="pay" type="number" inputmode="decimal" min="1" step="1" value="30"></div>
       </div>
+      <div class="field" id="minBox" hidden>
+        <label for="pct">Minimum = interest + this share of the balance</label>
+        <div class="inrow"><input id="pct" type="number" inputmode="decimal" min="0" max="10" step="0.5" value="1"><span>%</span></div>
+        <label for="floor">But never less than</label>
+        <div class="inrow"><span>$</span><input id="floor" type="number" inputmode="decimal" min="0" step="1" value="35"></div>
+        <p class="hint">Many US cards use interest + 1% with a floor of $25 to $40. Check your statement.</p>
+      </div>
       <div class="field">
-        <label for="extra">Pay a little more <output id="extraOut" for="extra">+$20</output></label>
-        <input id="extra" type="range" min="5" max="200" step="5" value="20">
-        <p class="hint">See what an extra few dollars a month does.</p>
+        <label for="extra" id="extraLbl">Pay a little more <output id="extraOut" for="extra">+$20</output></label>
+        <input id="extra" type="range" min="0" max="200" step="5" value="20">
+        <p class="hint" id="extraHint">See what an extra few dollars a month does.</p>
       </div>
     </form>
 
@@ -151,7 +173,7 @@ footer p{margin:0;max-width:75ch}
   </section>
 
   <footer>
-    <p>How it works: interest is added each month at APR ÷ 12, then your payment comes off. It assumes no new purchases, no late fees and a fixed APR. Your bank's exact numbers can differ a little. Education only, not financial advice.</p>
+    <p>How it works: interest is added each month at APR ÷ 12, then your payment comes off. In minimum mode the payment is that month's interest plus a share of the balance, never below the floor, so it shrinks as the balance shrinks. It assumes no new purchases, no late fees and a fixed APR. Your bank's exact numbers can differ a little. Education only, not financial advice.</p>
     <p>The simple rule from the video: use a credit card like a debit card, and pay the full statement every month. Then interest is zero.</p>
     <div class="links">
       <a class="primary" href="https://www.youtube.com/@AskMrCoin" target="_blank" rel="noopener">Watch Mr. Coin on YouTube</a>
@@ -174,6 +196,17 @@ footer p{margin:0;max-width:75ch}
     while(b>0.005&&m<1200){b+=b*r;const p=Math.min(pay,b);b-=p;total+=p;m++;trace.push(Math.max(b,0));}
     return {never:false,months:m,total,interest:total-balance,trace};
   }
+  // Card minimum: this month's interest + pct of the balance, but at least the floor. It shrinks as the balance shrinks.
+  function runMin(balance,apr,pct,floor){
+    const r=apr/100/12; let b=balance,total=0,m=0,first=0; const trace=[b];
+    while(b>0.005&&m<1200){const i=b*r;let p=Math.max(i+b*pct/100,floor);p=Math.min(p,b+i);if(p<=i+0.005)return {never:true,trace:[balance],first:p};if(!m)first=p;b=b+i-p;total+=p;m++;trace.push(Math.max(b,0));}
+    if(b>0.005)return {never:true,trace,first};
+    return {never:false,months:m,total,interest:total-balance,trace,first};
+  }
+  const minMode=()=>$('modeMin').checked;
+  function preset(){
+    if(location.hash==='#minimum'){$('bal').value=5000;$('apr').value=22;$('modeMin').checked=true;$('pct').value=1;$('floor').value=35;$('extra').value=0;}
+  }
 
   function card(sfx,res,balance){
     if(res.never){$('time'+sfx).textContent='Never';$('tot'+sfx).textContent='—';$('int'+sfx).textContent='grows';$('sp'+sfx).style.width='0';$('si'+sfx).style.width='100%';return;}
@@ -194,8 +227,8 @@ footer p{margin:0;max-width:75ch}
     for(let k=0;k<=4;k++){const v=balance*k/4,yy=y(v);
       g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${c('--grid')}" stroke-width="1"/>`+
          `<text x="${L-8}" y="${yy+4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="${c('--muted')}">${whole(v)}</text>`;}
-    const step=n>48?12:n>18?6:3;
-    for(let i=0;i<=n;i+=step){g+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="${c('--muted')}">${i===0?'now':i+' mo'}</text>`;}
+    const step=n>72?Math.ceil(n/6/12)*12:n>48?12:n>18?6:3;
+    for(let i=0;i<=n;i+=step){const lab=i===0?'now':(step>=12?(i/12)+' yr':i+' mo');g+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="${c('--muted')}">${lab}</text>`;}
     const path=(t,col,w)=>{if(t.length<2)return '';let d=t.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
       const last=t.length-1;return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round"/>`+
         `<circle cx="${x(last)}" cy="${y(t[last])}" r="4" fill="${col}"/>`;};
@@ -205,20 +238,38 @@ footer p{margin:0;max-width:75ch}
   }
 
   function update(){
-    const balance=Math.max(1,+$('bal').value||0), apr=Math.max(0,+$('apr').value||0), pay=Math.max(1,+$('pay').value||0), extra=+$('extra').value;
+    const balance=Math.max(1,+$('bal').value||0), apr=Math.max(0,+$('apr').value||0), extra=+$('extra').value;
+    const mm=minMode();
+    $('hBal').textContent=whole(balance);
+    $('fixedBox').hidden=mm; $('minBox').hidden=!mm;
     $('extraOut').textContent='+$'+extra;
-    const a=run(balance,apr,pay), b=run(balance,apr,pay+extra);
-    $('tagA').textContent='Paying '+whole(pay)+' a month'; $('tagB').textContent='Paying '+whole(pay+extra)+' a month';
-    $('lgA').textContent=whole(pay)+' a month'; $('lgB').textContent=whole(pay+extra)+' a month';
+    let a,b,pay,payB,labA,labB;
+    if(mm){
+      const pct=Math.max(0,+$('pct').value||0), floor=Math.max(0,+$('floor').value||0);
+      a=runMin(balance,apr,pct,floor); pay=a.first; payB=pay+extra; b=run(balance,apr,payB);
+      labA='Only the minimum (starts at '+whole(pay)+')';
+      labB=extra?'Fixed '+whole(payB)+' a month':'Freeze at '+whole(pay)+' a month';
+      $('extraHint').textContent='Rule from the video: keep paying your first minimum ('+whole(pay)+') every month, then add a little on top.';
+    }else{
+      pay=Math.max(1,+$('pay').value||0); payB=pay+extra; a=run(balance,apr,pay); b=run(balance,apr,payB);
+      labA='Paying '+whole(pay)+' a month'; labB='Paying '+whole(payB)+' a month';
+      $('extraHint').textContent='See what an extra few dollars a month does.';
+    }
+    $('tagA').textContent=labA; $('tagB').textContent=labB;
+    $('lgA').textContent=labA; $('lgB').textContent=labB;
     card('A',a,balance); card('B',b,balance);
     const w=$('warn');
-    if(a.never){w.hidden=false;w.textContent='At '+whole(pay)+' a month the interest ('+money(balance*apr/100/12)+' a month) eats the whole payment. The balance never goes down.';}
+    if(a.never){w.hidden=false;w.textContent=mm?'With these settings the minimum never pays the balance off. Check the share and the floor on your statement.':'At '+whole(pay)+' a month the interest ('+money(balance*apr/100/12)+' a month) eats the whole payment. The balance never goes down.';}
     else w.hidden=true;
     const s=$('save');
-    if(!a.never&&!b.never){s.hidden=false;s.innerHTML='Paying <strong>$'+extra+'</strong> more each month saves <strong>'+money(a.interest-b.interest)+'</strong> and gets you debt-free <strong>'+(a.months-b.months)+' months</strong> sooner.';}
+    if(!a.never&&!b.never&&a.months>b.months){s.hidden=false;
+      const what=mm?(extra?'Paying a fixed <strong>'+whole(payB)+'</strong> instead of the shrinking minimum':'Freezing your payment at <strong>'+whole(pay)+'</strong>'):'Paying <strong>$'+extra+'</strong> more each month';
+      s.innerHTML=what+' saves <strong>'+money(a.interest-b.interest)+'</strong> and gets you debt-free <strong>'+(a.months-b.months)+' months</strong> sooner.';}
     else s.hidden=true;
     chart(a,b,balance);
   }
+  preset();
+  window.addEventListener('hashchange',()=>{preset();update();});
   $('f').addEventListener('input',update);
   $('f').addEventListener('submit',e=>e.preventDefault());
   try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',update);}catch(e){}
