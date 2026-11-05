@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>$5 a Day Calculator | Mr. Coin</title>
+<meta name="description" content="Free calculator from Mr. Coin: what a small daily amount like $5 becomes in a jar and with compound growth, and why starting early matters.">
+<meta property="og:title" content="$5 a Day Calculator | Mr. Coin">
+<meta property="og:description" content="$5 a day is $18,250 in ten years in a jar. See what time and compound growth do with it.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: same bench as the payoff calculator. Controls left, two outcomes right, growth trace below. */
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#0f1d33; --muted:#566278; --line:#d9dee8;
+  --gold:#b87a00; --gold-soft:#f6e3b4; --good:#1f7a5a; --bad:#b4472f; --grid:#e6eaf1;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0b1526; --panel:#12203a; --ink:#e9eef7; --muted:#9aa7bd; --line:#24365a;
+  --gold:#f2b134; --gold-soft:#3a2f14; --good:#4fc79a; --bad:#ff8a6b; --grid:#1b2c4b; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header a{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
+.coin{width:44px;height:44px;border-radius:50%;background:#f2b134;color:#0f1d33;display:grid;place-items:center;font:800 15px/1 var(--display);flex:none}
+.brand{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--ink)}
+h1{font:800 clamp(28px,4.6vw,46px)/1.08 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+.bench{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:20px}
+@media (max-width:760px){.bench{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.controls{display:grid;gap:18px;align-content:start}
+.field{display:grid;gap:6px}
+.field label{font:600 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.inrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--bg)}
+.inrow span{font:500 15px var(--mono);color:var(--muted)}
+.inrow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 18px/2.4 var(--mono);outline:none;font-variant-numeric:tabular-nums}
+.inrow:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.readouts{display:grid;gap:16px;min-width:0}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.cards{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;background:var(--panel)}
+.card.alt{border-color:var(--good)}
+.tag{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card.alt .tag{color:var(--good)}
+.big{font:600 30px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.sub{font-size:14px;color:var(--muted)}
+.loss{border:1px dashed var(--good);border-radius:10px;padding:14px 16px;font-size:15px}
+.loss strong{color:var(--good);font-family:var(--mono)}
+.chart h2{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+footer{display:grid;gap:12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:18px}
+footer p{margin:0;max-width:75ch}
+.links{display:flex;gap:12px;flex-wrap:wrap}
+.links a{font:600 14px var(--body);color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:9px 14px;background:var(--panel)}
+.links a:hover,.links a:focus-visible{border-color:var(--gold);outline:none}
+.links a.primary{background:#f2b134;border-color:#f2b134;color:#0f1d33}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="./"><div class="coin" aria-hidden="true">MC</div><div class="brand"><b>Mr. Coin</b> · money is a system, let's debug it</div></a></header>
+
+  <section style="display:grid;gap:10px">
+    <h1>What does <em id="hDaily">$5</em> a day really become?</h1>
+    <p class="lede">A coffee, an energy drink, a snack. Type a small daily amount and see it in a jar and with compound growth. The numbers filled in below are the example from our video: $5 a day from age 15 to 65, with 7% a year as an example.</p>
+  </section>
+
+  <section class="bench">
+    <form class="panel controls" id="f" autocomplete="off">
+      <div class="field">
+        <label for="daily">Saved every day</label>
+        <div class="inrow"><span>$</span><input id="daily" type="number" inputmode="decimal" min="0" step="0.5" value="5"></div>
+        <p class="hint" id="perMonth">About $152 a month, $1,825 a year.</p>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="startAge">Start at age</label>
+          <div class="inrow"><input id="startAge" type="number" inputmode="numeric" min="10" max="80" step="1" value="15"></div>
+        </div>
+        <div class="field">
+          <label for="stopAge">Stop at age</label>
+          <div class="inrow"><input id="stopAge" type="number" inputmode="numeric" min="11" max="90" step="1" value="65"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="later">Compare: start this many years later</label>
+        <div class="inrow"><input id="later" type="number" inputmode="numeric" min="1" max="40" step="1" value="10"><span>yr</span></div>
+      </div>
+      <div class="field">
+        <label for="growth">Example growth per year</label>
+        <div class="inrow"><input id="growth" type="number" inputmode="decimal" min="0" max="15" step="0.5" value="7"><span>%</span></div>
+        <p class="hint">An example, not a promise. Some years the market falls by 30% or more. Only for money you will not need for a long time.</p>
+      </div>
+    </form>
+
+    <div class="readouts">
+      <div class="cards">
+        <div class="card alt">
+          <span class="tag" id="tagA">Start at 15, with growth</span>
+          <div class="big" id="endA">$828,561</div>
+          <div class="sub" id="subA">at 65. You put in $91,250.</div>
+        </div>
+        <div class="card">
+          <span class="tag" id="tagB">Start at 25, with growth</span>
+          <div class="big" id="endB">$399,190</div>
+          <div class="sub" id="subB">at 65. You put in $73,000.</div>
+        </div>
+      </div>
+      <p class="loss" id="loss">Starting 10 years earlier means putting in <strong>$18,250</strong> more and ending with <strong>$429,371</strong> more.</p>
+      <div class="panel chart">
+        <h2>Year by year</h2>
+        <svg id="svg" viewBox="0 0 640 260" role="img" aria-label="Chart of savings with growth for both start ages and the jar"></svg>
+        <div class="legend"><span><i style="background:var(--good)"></i><span id="lgA">Start at 15</span></span><span><i style="background:var(--bad)"></i><span id="lgB">Start at 25</span></span><span><i style="background:var(--muted)"></i>Jar, no growth</span></div>
+      </div>
+      <div class="panel">
+        <h2 style="font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px">Milestones</h2>
+        <div style="overflow-x:auto"><table id="tbl" style="width:100%;border-collapse:collapse;font:500 14px var(--mono);font-variant-numeric:tabular-nums"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>How it works: the daily amount is added at the end of each month (daily × 365 ÷ 12), and the balance grows by the example rate ÷ 12 every month. The jar line is the same money with no growth. Inflation makes money in a jar buy less every year. Past growth does not promise future growth. Build your safety fund first. Education only, not financial advice.</p>
+    <div class="links">
+      <a class="primary" href="https://www.youtube.com/@AskMrCoin" target="_blank" rel="noopener">Watch Mr. Coin on YouTube</a>
+      <a href="./">More free calculators</a>
+      <a href="https://payhip.com/b/A7EO6" target="_blank" rel="noopener">First Money Kit (guide + checklist)</a>
+    </div>
+  </footer>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const whole=v=>'$'+Math.round(v).toLocaleString('en-US');
+  function grow(daily,g,years){const mr=g/100/12,mo=daily*365/12;let b=0;const t=[0];for(let m=1;m<=years*12;m++){b=b*(1+mr)+mo;if(m%12===0)t.push(b);}return t;}
+  function chart(a,b,jar,offset){
+    const svg=$('svg'),W=640,H=260,L=70,R=12,T=12,B=34,n=a.length-1;
+    const max=Math.max(...a,1);
+    const x=i=>L+(W-L-R)*i/n, y=v=>T+(H-T-B)*(1-v/max);
+    const cs=getComputedStyle(document.documentElement),c=k=>cs.getPropertyValue(k).trim();
+    let g='';
+    for(let k=0;k<=4;k++){const v=max*k/4,yy=y(v);
+      g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${c('--grid')}"/>`+
+         `<text x="${L-8}" y="${yy+4}" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="11" fill="${c('--muted')}">${whole(v)}</text>`;}
+    const step=n>40?10:n>20?5:n>8?2:1, age0=+$('startAge').value||0;
+    for(let i=0;i<=n;i+=step)g+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="${c('--muted')}">age ${age0+i}</text>`;
+    const p=(t,col,start,dash)=>{if(t.length<2)return '';const d=t.map((v,i)=>(i?'L':'M')+x(i+start).toFixed(1)+' '+y(v).toFixed(1)).join(' ');const last=t.length-1;return `<path d="${d}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" ${dash?'stroke-dasharray="5 5"':''}/><circle cx="${x(last+start)}" cy="${y(t[last])}" r="4" fill="${col}"/>`;};
+    g+=p(jar,c('--muted'),0,true)+p(b,c('--bad'),offset)+p(a,c('--good'),0);
+    svg.innerHTML=g;
+  }
+  function update(){
+    const daily=Math.max(0,+$('daily').value||0),g=Math.max(0,+$('growth').value||0);
+    let s=Math.round(+$('startAge').value||0),e=Math.round(+$('stopAge').value||0);if(e<=s)e=s+1;
+    let later=Math.max(1,Math.round(+$('later').value||1));if(later>=e-s)later=e-s-1;
+    const yrs=e-s, a=grow(daily,g,yrs), b=later>0?grow(daily,g,yrs-later):[0], jar=a.map((_,i)=>daily*365*i);
+    $('hDaily').textContent='$'+daily.toLocaleString('en-US');
+    $('perMonth').textContent='About '+whole(daily*365/12)+' a month, '+whole(daily*365)+' a year.';
+    const ea=a[yrs], eb=b[b.length-1], inA=daily*365*yrs, inB=daily*365*(yrs-later);
+    $('tagA').textContent='Start at '+s+', with growth';$('lgA').textContent='Start at '+s;
+    $('tagB').textContent='Start at '+(s+later)+', with growth';$('lgB').textContent='Start at '+(s+later);
+    $('endA').textContent=whole(ea);$('endB').textContent=later>0?whole(eb):'—';
+    $('subA').textContent='at '+e+'. You put in '+whole(inA)+'.';
+    $('subB').textContent=later>0?'at '+e+'. You put in '+whole(inB)+'.':'';
+    $('loss').innerHTML=later>0?'Starting '+later+' years earlier means putting in <strong>'+whole(inA-inB)+'</strong> more and ending with <strong>'+whole(ea-eb)+'</strong> more.':'';
+    const rows=[[ 'Years','In a jar','With growth']];
+    [10,20,30,40,50].filter(y=>y<=yrs).forEach(y=>rows.push([y+' yr (age '+(s+y)+')',whole(daily*365*y),whole(a[y])]));
+    if(![10,20,30,40,50].includes(yrs))rows.push([yrs+' yr (age '+e+')',whole(inA),whole(ea)]);
+    $('tbl').innerHTML=rows.map((r,i)=>'<tr>'+r.map((c,j)=>(i?'<td':'<th')+' style="text-align:'+(j?'right':'left')+';padding:6px 4px;border-bottom:1px solid var(--line);'+(i?'':'color:var(--muted);font-weight:600')+'">'+c+(i?'</td>':'</th>')).join('')+'</tr>').join('');
+    chart(a,b,jar,later);
+  }
+  $('f').addEventListener('input',update);
+  $('f').addEventListener('submit',e=>e.preventDefault());
+  try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',update);}catch(e){}
+  update();
+})();
+</script>
+</body>
+</html>
