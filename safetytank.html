@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Emergency Fund Calculator | Mr. Coin</title>
+<meta name="description" content="Free emergency fund calculator from Mr. Coin: your three safety tank levels, from one surprise to 3-6 months of needs, and how long each takes at $10, $25 or $50 a week.">
+<meta property="og:title" content="Emergency Fund Calculator | Mr. Coin">
+<meta property="og:description" content="Three levels, one step at a time. See how long your safety tank takes to fill.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: same bench as the payoff calculator. Controls left, two outcomes right, growth trace below. */
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#0f1d33; --muted:#566278; --line:#d9dee8;
+  --gold:#b87a00; --gold-soft:#f6e3b4; --good:#1f7a5a; --bad:#b4472f; --grid:#e6eaf1;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0b1526; --panel:#12203a; --ink:#e9eef7; --muted:#9aa7bd; --line:#24365a;
+  --gold:#f2b134; --gold-soft:#3a2f14; --good:#4fc79a; --bad:#ff8a6b; --grid:#1b2c4b; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header a{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
+.coin{width:44px;height:44px;border-radius:50%;background:#f2b134;color:#0f1d33;display:grid;place-items:center;font:800 15px/1 var(--display);flex:none}
+.brand{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--ink)}
+h1{font:800 clamp(28px,4.6vw,46px)/1.08 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+.bench{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:20px}
+@media (max-width:760px){.bench{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.controls{display:grid;gap:18px;align-content:start}
+.field{display:grid;gap:6px}
+.field label{font:600 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.inrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--bg)}
+.inrow span{font:500 15px var(--mono);color:var(--muted)}
+.inrow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 18px/2.4 var(--mono);outline:none;font-variant-numeric:tabular-nums}
+.inrow:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.readouts{display:grid;gap:16px;min-width:0}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.cards{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;background:var(--panel)}
+.card.alt{border-color:var(--good)}
+.tag{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card.alt .tag{color:var(--good)}
+.big{font:600 30px/1.1 var(--mono);font-variant-numeric:tabular-nums}
+.sub{font-size:14px;color:var(--muted)}
+.loss{border:1px dashed var(--good);border-radius:10px;padding:14px 16px;font-size:15px}
+.loss strong{color:var(--good);font-family:var(--mono)}
+.chart h2{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+footer{display:grid;gap:12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:18px}
+footer p{margin:0;max-width:75ch}
+.links{display:flex;gap:12px;flex-wrap:wrap}
+.links a{font:600 14px var(--body);color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:9px 14px;background:var(--panel)}
+.links a:hover,.links a:focus-visible{border-color:var(--gold);outline:none}
+.links a.primary{background:#f2b134;border-color:#f2b134;color:#0f1d33}
+.levels{display:grid;gap:10px}
+.lvl{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--panel)}
+.lvl.done{border-color:var(--good)}
+.lvl .n{font:600 12px/1 var(--mono);letter-spacing:.08em;color:var(--gold);text-transform:uppercase}
+.lvl b{display:block;font-size:16px}
+.lvl span{display:block;color:var(--muted);font-size:14px}
+.lvl .amt{text-align:right;font:600 20px/1.2 var(--mono);font-variant-numeric:tabular-nums}
+.lvl .amt small{display:block;font:500 13px var(--body);color:var(--muted)}
+.bar{height:10px;border-radius:5px;background:var(--grid);overflow:hidden;grid-column:1/-1}
+.bar i{display:block;height:100%;background:var(--gold)}
+.lvl.done .bar i{background:var(--good)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{font:600 14px var(--mono);border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chips button[aria-pressed=true]{background:#f2b134;border-color:#f2b134;color:#0f1d33}
+.chips button:focus-visible{outline:2px solid var(--gold)}
+.valve{border:1px dashed var(--gold);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.valve h2{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0}
+.valve ol{margin:0;padding-left:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="./"><div class="coin" aria-hidden="true">MC</div><div class="brand"><b>Mr. Coin</b> · money is a system, let's debug it</div></a></header>
+
+  <section style="display:grid;gap:10px">
+    <h1>Build your <em>safety tank</em>, one level at a time</h1>
+    <p class="lede">An emergency fund has one job: to catch surprises. "Save 3 to 6 months" makes people quit before they start, so build it in three levels. Type your numbers and see how long each level takes. The $10 a week start is the example from our video.</p>
+  </section>
+
+  <section class="bench">
+    <form class="panel controls" id="f" autocomplete="off">
+      <div class="field">
+        <label for="first">Level 1: one surprise</label>
+        <div class="inrow"><span>$</span><input id="first" type="number" inputmode="decimal" min="0" step="50" value="300"></div>
+        <p class="hint">A phone repair, a vet bill. For many people, a few hundred dollars.</p>
+      </div>
+      <div class="field">
+        <label for="needs">Your needs for one month</label>
+        <div class="inrow"><span>$</span><input id="needs" type="number" inputmode="decimal" min="0" step="50" value="2000"></div>
+        <p class="hint">Only needs: rent, food, transport, bills. $2,000 is an example, type your own.</p>
+      </div>
+      <div class="field">
+        <label for="months">Level 3: months of needs</label>
+        <div class="inrow"><input id="months" type="number" inputmode="numeric" min="3" max="6" step="1" value="3"><span>months</span></div>
+        <p class="hint">The top floor is 3 to 6 months.</p>
+      </div>
+      <div class="field">
+        <label for="saved">Already in your tank</label>
+        <div class="inrow"><span>$</span><input id="saved" type="number" inputmode="decimal" min="0" step="10" value="0"></div>
+      </div>
+      <div class="field">
+        <label for="weekly">Auto-fill every week</label>
+        <div class="inrow"><span>$</span><input id="weekly" type="number" inputmode="decimal" min="1" step="5" value="10"></div>
+        <div class="chips" id="chips"><button type="button" data-v="10">$10</button><button type="button" data-v="25">$25</button><button type="button" data-v="50">$50</button><button type="button" data-v="100">$100</button></div>
+        <p class="hint" id="perYear">$10 a week is $520 a year.</p>
+      </div>
+    </form>
+
+    <div class="readouts">
+      <div class="levels" id="levels"></div>
+      <p class="loss" id="tip"></p>
+      <div class="valve">
+        <h2>The valve rules: before you take money out</h2>
+        <ol><li>Is it <b>unexpected</b>?</li><li>Is it <b>necessary</b>?</li><li>Is it <b>urgent</b>?</li></ol>
+        <p style="margin:0;font-size:15px">Three yeses: open the valve. A sale that ends tonight is not an emergency. Refill after every use.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>How it works: time to each level = (level target minus what you already have) divided by your weekly amount. It ignores interest, so a savings account that pays some interest gets you there a little faster. Keep the tank in a separate account, a little out of sight. Education only, not financial advice.</p>
+    <div class="links">
+      <a class="primary" href="https://www.youtube.com/@AskMrCoin" target="_blank" rel="noopener">Watch Mr. Coin on YouTube</a>
+      <a href="./">More free calculators</a>
+      <a href="https://payhip.com/b/A7EO6" target="_blank" rel="noopener">First Money Kit (guide + checklist)</a>
+    </div>
+  </footer>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const whole=v=>'$'+Math.round(v).toLocaleString('en-US');
+  function time(weeks){
+    if(weeks<=0)return 'reached';
+    if(weeks<9)return Math.ceil(weeks)+(Math.ceil(weeks)===1?' week':' weeks');
+    const m=weeks*12/52;
+    if(m<24)return Math.ceil(m)+' months';
+    const y=m/12;return (Math.round(y*10)/10).toLocaleString('en-US')+' years';
+  }
+  function update(){
+    const first=Math.max(0,+$('first').value||0),needs=Math.max(0,+$('needs').value||0);
+    let months=Math.round(+$('months').value||3);months=Math.min(6,Math.max(3,months));
+    const saved=Math.max(0,+$('saved').value||0),wk=Math.max(1,+$('weekly').value||1);
+    $('perYear').textContent=whole(wk)+' a week is '+whole(wk*52)+' a year.';
+    document.querySelectorAll('#chips button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===wk)));
+    const L=[
+      {n:'Level 1',t:'One surprise covered',s:'Phone repair, vet bill',target:first},
+      {n:'Level 2',t:'One month of needs',s:'Rent, food, transport',target:needs},
+      {n:'Level 3',t:months+' months of needs',s:'The top floor',target:needs*months}
+    ];
+    $('levels').innerHTML='';
+    L.forEach(l=>{
+      const need=l.target-saved, w=need/wk, pct=l.target>0?Math.min(100,saved/l.target*100):100;
+      const el=document.createElement('div');el.className='lvl'+(need<=0?' done':'');
+      el.innerHTML='<span class="n"></span><div><b></b><span class="s"></span></div><div class="amt"><span class="v"></span><small></small></div><div class="bar"><i></i></div>';
+      el.querySelector('.n').textContent=l.n;el.querySelector('b').textContent=l.t;el.querySelector('.s').textContent=l.s;
+      el.querySelector('.v').textContent=whole(l.target);
+      el.querySelector('small').textContent=need<=0?'reached':'in '+time(w);
+      el.querySelector('.bar i').style.width=pct+'%';
+      $('levels').appendChild(el);
+    });
+    const next=L.find(l=>l.target>saved);
+    if(next){const w1=(next.target-saved)/wk,w2=(next.target-saved)/(wk+10);
+      $('tip').innerHTML='Adding <strong>$10</strong> more a week reaches '+next.n.toLowerCase()+' in <strong>'+time(w2)+'</strong> instead of '+time(w1)+'.';}
+    else $('tip').innerHTML='All three levels are full. Keep the auto-fill running and refill after every use.';
+  }
+  $('f').addEventListener('input',update);
+  $('f').addEventListener('submit',e=>e.preventDefault());
+  $('chips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('weekly').value=b.dataset.v;update();});
+  update();
+})();
+</script>
+</body>
+</html>
