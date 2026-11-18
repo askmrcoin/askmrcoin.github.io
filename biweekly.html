@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biweekly Budget Calculator | Mr. Coin</title>
+<meta name="description" content="Free biweekly budget calculator from Mr. Coin: split your monthly bills between two paychecks by due date, see what's left from each, and find your three-paycheck months.">
+<meta property="og:title" content="Biweekly Budget Calculator | Mr. Coin">
+<meta property="og:description" content="Paid every two weeks, billed every month? Split your bills between two paychecks and spot your bonus months.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --ink:#0f1d33; --muted:#566278; --line:#d9dee8;
+  --gold:#b87a00; --gold-soft:#f6e3b4; --good:#1f7a5a; --bad:#b4472f; --grid:#e6eaf1;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0b1526; --panel:#12203a; --ink:#e9eef7; --muted:#9aa7bd; --line:#24365a;
+  --gold:#f2b134; --gold-soft:#3a2f14; --good:#4fc79a; --bad:#ff8a6b; --grid:#1b2c4b; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header a{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
+.coin{width:44px;height:44px;border-radius:50%;background:#f2b134;color:#0f1d33;display:grid;place-items:center;font:800 15px/1 var(--display);flex:none}
+.brand{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--ink)}
+h1{font:800 clamp(28px,4.6vw,46px)/1.08 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gold)}
+h2{font:600 13px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+.bench{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:20px}
+@media (max-width:800px){.bench{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+.controls{display:grid;gap:18px;align-content:start}
+.field{display:grid;gap:6px}
+.field>label{font:600 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.inrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--bg)}
+.inrow span{font:500 15px var(--mono);color:var(--muted)}
+.inrow input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 18px/2.4 var(--mono);outline:none}
+.inrow:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.bills{display:grid;gap:8px}
+.bill{display:grid;grid-template-columns:minmax(0,1fr) 92px 64px 32px;gap:6px;align-items:center}
+.bill input{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:500 15px/2.2 var(--mono);padding:0 8px;outline:none}
+.bill input:focus{border-color:var(--gold)}
+.bill button,.add{border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;cursor:pointer;font:600 15px/2 var(--mono)}
+.add{padding:4px 12px;justify-self:start}
+.bhead{display:grid;grid-template-columns:minmax(0,1fr) 92px 64px 32px;gap:6px;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.readouts{display:grid;gap:16px;min-width:0}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.cards{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;background:var(--panel);align-content:start}
+.card.p1{border-color:var(--good)} .card.p2{border-color:var(--gold)}
+.tag{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card.p1 .tag{color:var(--good)} .card.p2 .tag{color:var(--gold)}
+.big{font:600 28px/1.1 var(--mono)}
+.sub{font-size:14px;color:var(--muted)}
+ul.lines{list-style:none;margin:0;padding:0;display:grid;gap:4px;font:500 14px var(--mono)}
+ul.lines li{display:flex;justify-content:space-between;gap:10px}
+.left{border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;font:600 16px var(--mono)}
+.neg{color:var(--bad)}
+.trap{border:1px dashed var(--bad);border-radius:10px;padding:14px 16px;font-size:15px}
+.trap strong{font-family:var(--mono)}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.m{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.m b{display:block;font:600 14px var(--mono)}
+.m span{font-size:13px;color:var(--muted)}
+.m.three{border-color:var(--gold);background:var(--gold-soft)}
+.m.three b{color:var(--gold)}
+.bonus{border:1px dashed var(--good);border-radius:10px;padding:14px 16px;font-size:15px}
+.bonus strong{color:var(--good);font-family:var(--mono)}
+footer{display:grid;gap:12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:18px}
+footer p{margin:0;max-width:75ch}
+.links{display:flex;gap:12px;flex-wrap:wrap}
+.links a{font:600 14px var(--body);color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:9px 14px;background:var(--panel)}
+.links a:hover,.links a:focus-visible{border-color:var(--gold);outline:none}
+.links a.primary{background:#f2b134;border-color:#f2b134;color:#0f1d33}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="./"><div class="coin" aria-hidden="true">MC</div><div class="brand"><b>Mr. Coin</b> · money is a system, let's debug it</div></a></header>
+
+  <section style="display:grid;gap:10px">
+    <h1>Paid every two weeks, <em>billed every month</em></h1>
+    <p class="lede">Type your take-home pay and your bills with due dates. The calculator splits them between paycheck 1 (bills due on the 1st to the 14th) and paycheck 2 (the 15th to the end of the month), splits any big bill in half, and shows your three-paycheck months. The numbers are the example from our video, type your own.</p>
+  </section>
+
+  <section class="bench">
+    <form class="panel controls" id="f" autocomplete="off">
+      <div class="field">
+        <label for="pay">Take-home pay per paycheck</label>
+        <div class="inrow"><span>$</span><input id="pay" type="number" inputmode="decimal" min="0" step="50" value="1600"></div>
+      </div>
+      <div class="field">
+        <label for="next">Your next payday</label>
+        <div class="inrow"><input id="next" type="date"></div>
+        <p class="hint">Used only to find your three-paycheck months.</p>
+      </div>
+      <div class="field">
+        <label>Monthly bills</label>
+        <div class="bhead"><span>Bill</span><span>Amount $</span><span>Due day</span><span></span></div>
+        <div class="bills" id="bills"></div>
+        <button type="button" class="add" id="add">+ add a bill</button>
+        <p class="hint">A bill bigger than half a paycheck (like rent) is split: half from each paycheck.</p>
+      </div>
+    </form>
+
+    <div class="readouts">
+      <p class="trap" id="trap"></p>
+      <div class="cards">
+        <div class="card p1"><span class="tag">Paycheck 1 · bills due 1st to 14th</span><ul class="lines" id="l1"></ul><div class="left"><span>Left for food, gas, savings</span><span id="r1"></span></div></div>
+        <div class="card p2"><span class="tag">Paycheck 2 · bills due 15th to end</span><ul class="lines" id="l2"></ul><div class="left"><span>Left for food, gas, savings</span><span id="r2"></span></div></div>
+      </div>
+      <div class="panel">
+        <h2>Your next 12 months</h2>
+        <div class="months" id="months"></div>
+      </div>
+      <p class="bonus" id="bonus"></p>
+    </div>
+  </section>
+
+  <footer>
+    <p>How it works: your monthly budget is two paychecks, never the yearly average (pay × 26 ÷ 12), because ten months a year you only get two. Bills due on days 1 to 14 come from paycheck 1, days 15 to 31 from paycheck 2. Bills bigger than half a paycheck are split half and half, so the money is set aside before the due date. Paydays repeat every 14 days from the date you enter. Education only, not financial advice.</p>
+    <div class="links">
+      <a class="primary" href="https://www.youtube.com/@AskMrCoin" target="_blank" rel="noopener">Watch Mr. Coin on YouTube</a>
+      <a href="./">More free calculators</a>
+      <a href="https://payhip.com/b/A7EO6" target="_blank" rel="noopener">First Money Kit (guide + checklist)</a>
+    </div>
+  </footer>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const usd=v=>(v<0?'-':'')+'$'+Math.abs(Math.round(v)).toLocaleString('en-US');
+  const DEF=[['Rent',1300,1],['Car insurance',150,12],['Phone',60,15],['Utilities',140,20],['Streaming',30,25]];
+  function row(n,a,d){
+    const el=document.createElement('div');el.className='bill';
+    el.innerHTML='<input class="n" aria-label="Bill name"><input class="a" type="number" min="0" step="10" inputmode="decimal" aria-label="Amount"><input class="d" type="number" min="1" max="31" inputmode="numeric" aria-label="Due day"><button type="button" aria-label="Remove bill">×</button>';
+    el.querySelector('.n').value=n;el.querySelector('.a').value=a;el.querySelector('.d').value=d;
+    el.querySelector('button').onclick=()=>{el.remove();update();};
+    $('bills').appendChild(el);
+  }
+  DEF.forEach(b=>row(...b));
+  // default next payday: next Friday
+  const t=new Date();const add=(5-t.getDay()+7)%7||7;const nf=new Date(t.getFullYear(),t.getMonth(),t.getDate()+add);
+  $('next').value=nf.getFullYear()+'-'+String(nf.getMonth()+1).padStart(2,'0')+'-'+String(nf.getDate()).padStart(2,'0');
+  $('add').onclick=()=>{row('New bill',0,1);update();};
+  function li(ul,name,amt){const l=document.createElement('li');const a=document.createElement('span');a.textContent=name;const b=document.createElement('span');b.textContent='-'+usd(amt);l.append(a,b);ul.appendChild(l);}
+  function update(){
+    const pay=Math.max(0,+$('pay').value||0);
+    const bills=[...document.querySelectorAll('.bill')].map(e=>({n:e.querySelector('.n').value||'Bill',a:Math.max(0,+e.querySelector('.a').value||0),d:Math.min(31,Math.max(1,Math.round(+e.querySelector('.d').value||1)))}));
+    const avg=pay*26/12, two=pay*2;
+    $('trap').innerHTML='Your monthly budget: <strong>'+usd(two)+'</strong> (two paychecks). The average, pay × 26 ÷ 12, says <strong>'+usd(avg)+'</strong>. Budget on the average and you are <strong>'+usd(avg-two)+'</strong> short in every normal month.';
+    const l1=$('l1'),l2=$('l2');l1.innerHTML='';l2.innerHTML='';let s1=0,s2=0;
+    bills.forEach(b=>{
+      if(b.a>pay/2){li(l1,b.n+' (half)',b.a/2);li(l2,b.n+' (half)',b.a/2);s1+=b.a/2;s2+=b.a/2;}
+      else if(b.d<=14){li(l1,b.n+' · '+b.d,b.a);s1+=b.a;} else {li(l2,b.n+' · '+b.d,b.a);s2+=b.a;}
+    });
+    $('r1').textContent=usd(pay-s1);$('r1').className=pay-s1<0?'neg':'';
+    $('r2').textContent=usd(pay-s2);$('r2').className=pay-s2<0?'neg':'';
+    // months
+    const nv=$('next').value;const box=$('months');box.innerHTML='';let threes=[];
+    if(nv){
+      const [y,m,d]=nv.split('-').map(Number);let p=new Date(y,m-1,d);
+      const start=new Date(y,m-1,1);const counts={};
+      // go back to first payday inside start month
+      while(p>start){p=new Date(p.getFullYear(),p.getMonth(),p.getDate()-14);}
+      const end=new Date(y,m-1+12,1);
+      for(let q=new Date(p);q<end;q=new Date(q.getFullYear(),q.getMonth(),q.getDate()+14)){
+        if(q<start)continue;const k=q.getFullYear()+'-'+q.getMonth();(counts[k]=counts[k]||[]).push(q.getDate());}
+      for(let i=0;i<12;i++){
+        const md=new Date(y,m-1+i,1);const k=md.getFullYear()+'-'+md.getMonth();const ds=counts[k]||[];
+        const el=document.createElement('div');el.className='m'+(ds.length>=3?' three':'');
+        const b=document.createElement('b');b.textContent=md.toLocaleString('en-US',{month:'short',year:'numeric'})+(ds.length>=3?' · 3 paychecks':'');
+        const s=document.createElement('span');s.textContent='paydays: '+ds.join(', ');
+        el.append(b,s);box.appendChild(el);if(ds.length>=3)threes.push(md.toLocaleString('en-US',{month:'long'}));
+      }
+    }
+    $('bonus').innerHTML=threes.length?('Bonus months ahead: <strong>'+threes.join(' and ')+'</strong>. Your bills are already covered by the other two paychecks, so each third paycheck, <strong>'+usd(pay)+'</strong>, can go to one goal: emergency fund, a debt, or a sinking fund.'):'No three-paycheck month in the next 12 months from this date.';
+  }
+  $('f').addEventListener('input',update);
+  $('f').addEventListener('submit',e=>e.preventDefault());
+  update();
+})();
+</script>
+</body>
+</html>
